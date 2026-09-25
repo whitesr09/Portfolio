@@ -491,7 +491,12 @@ export default function PortfolioClient() {
                   <span>{project.category}</span>
                   <span>{project.year}</span>
                 </div>
-                <div className="project-visual" style={{ background: project.accent }}>
+                <div className={`project-visual ${project.media ? "has-project-media" : ""}`} style={{ background: project.accent }}>
+                  {project.media && (
+                    <div className="project-media-stage">
+                      <img src={project.media} alt={project.mediaAlt || `${project.title} interface preview`} loading="lazy" />
+                    </div>
+                  )}
                   <div className="project-grid" aria-hidden="true" />
                   <div className="project-sigil" aria-hidden="true">{project.title.slice(0, 1)}</div>
                   <div className="project-title-wrap">
