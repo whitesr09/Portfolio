@@ -68,6 +68,22 @@ export default async function CaseStudyPage({ params }: Props) {
         <div><span>TOOLS</span><strong>{project.tools.slice(0, 2).join(" / ")}</strong></div>
       </section>
 
+      {project.media && (
+        <section className="case-media-showcase">
+          <div className="case-media-frame" style={{ background: project.accent }}>
+            <img
+              src={project.media}
+              alt={project.mediaAlt || `${project.title} interface preview`}
+              loading="eager"
+            />
+          </div>
+          <div className="case-media-caption">
+            <span>REAL PRODUCT INTERFACE</span>
+            <span>NSHD / {project.year}</span>
+          </div>
+        </section>
+      )}
+
       <section className="case-story">
         <aside className="case-sticky">
           <span className="section-label">CASE STUDY / {String(currentIndex + 1).padStart(2, "0")}</span>
