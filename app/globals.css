@@ -614,3 +614,159 @@ footer > button strong { font-weight: 500; }
   *,*::before,*::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
   .particle-field { display: none; }
 }
+
+
+/* Real project interface media */
+.project-visual.has-project-media {
+  background-color: #090909 !important;
+}
+.project-media-stage {
+  position: absolute;
+  inset: clamp(1rem, 3.2vw, 3rem);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-left: clamp(4rem, 28vw, 31rem);
+  pointer-events: none;
+  perspective: 1400px;
+}
+.project-media-stage::before {
+  content: "";
+  position: absolute;
+  width: min(58vw, 720px);
+  aspect-ratio: 1;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.13), rgba(255,255,255,.025) 34%, transparent 68%);
+  filter: blur(20px);
+  opacity: .55;
+}
+.project-media-stage img {
+  position: relative;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(62%, 790px);
+  max-height: 82%;
+  object-fit: contain;
+  border-radius: clamp(10px, 1.25vw, 20px);
+  box-shadow:
+    0 45px 110px rgba(0,0,0,.58),
+    0 10px 30px rgba(0,0,0,.34),
+    0 0 0 1px rgba(255,255,255,.14);
+  transform: perspective(1400px) rotateX(2deg) rotateY(-4deg) translate3d(0,0,0);
+  transition:
+    transform 1s var(--ease),
+    filter .8s var(--ease),
+    box-shadow .8s var(--ease);
+}
+.project-row:hover .project-media-stage img {
+  transform: perspective(1400px) rotateX(0deg) rotateY(-1.2deg) translate3d(-8px,-5px,0) scale(1.025);
+  box-shadow:
+    0 58px 140px rgba(0,0,0,.68),
+    0 14px 38px rgba(0,0,0,.4),
+    0 0 0 1px rgba(255,255,255,.2);
+}
+.has-project-media .project-grid {
+  z-index: 0;
+  opacity: .08;
+}
+.has-project-media .project-sigil {
+  display: none;
+}
+.has-project-media::after {
+  z-index: 2;
+  background:
+    linear-gradient(90deg, rgba(3,3,3,.9) 0%, rgba(3,3,3,.42) 37%, rgba(3,3,3,.07) 68%, rgba(3,3,3,.16) 100%),
+    linear-gradient(180deg, rgba(0,0,0,.02) 32%, rgba(0,0,0,.72) 100%);
+}
+.has-project-media .project-title-wrap,
+.has-project-media .project-arrow {
+  z-index: 4;
+}
+.has-project-media .project-title-wrap {
+  max-width: 52%;
+  text-shadow: 0 2px 28px rgba(0,0,0,.6);
+}
+
+/* Large authentic UI preview inside case studies */
+.case-media-showcase {
+  padding: clamp(2.5rem, 6vw, 6rem) var(--pad) 0;
+  background: var(--bg);
+}
+.case-media-frame {
+  position: relative;
+  min-height: clamp(440px, 72vw, 900px);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  isolation: isolate;
+}
+.case-media-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 72% 45%, rgba(255,255,255,.12), transparent 30%),
+    linear-gradient(180deg, transparent 50%, rgba(0,0,0,.25));
+  z-index: 0;
+}
+.case-media-frame img {
+  position: relative;
+  z-index: 1;
+  max-height: min(78vw, 760px);
+  max-width: min(82vw, 980px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: clamp(10px, 1.4vw, 22px);
+  box-shadow: 0 48px 130px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.12);
+}
+.case-media-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .85rem 0 0;
+  color: #65635e;
+  font-size: .54rem;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 680px) {
+  .project-media-stage {
+    inset: .8rem;
+    padding: 0;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 1.2rem;
+  }
+  .project-media-stage img {
+    max-width: 88%;
+    max-height: 70%;
+    transform: perspective(1000px) rotateX(1deg) rotateY(-2deg);
+  }
+  .project-row:hover .project-media-stage img {
+    transform: perspective(1000px) rotateX(1deg) rotateY(-2deg);
+  }
+  .has-project-media::after {
+    background: linear-gradient(180deg, rgba(0,0,0,.03) 20%, rgba(0,0,0,.42) 58%, rgba(0,0,0,.88) 100%);
+  }
+  .has-project-media .project-title-wrap {
+    max-width: calc(100% - 2rem);
+  }
+  .case-media-showcase {
+    padding-top: 1.2rem;
+  }
+  .case-media-frame {
+    min-height: 62vh;
+  }
+  .case-media-frame img {
+    max-width: 92%;
+    max-height: 55vh;
+  }
+}
