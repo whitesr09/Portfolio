@@ -10,6 +10,8 @@ export type Project = {
   tools: string[];
   chapters: { title: string; body: string }[];
   accent: string;
+  media?: string;
+  mediaAlt?: string;
   href?: string;
 };
 
@@ -31,6 +33,28 @@ export const projects: Project[] = [
       { title: "What I learned", body: "The strongest interface decisions came from deciding what not to show. Restraint made the product feel more personal and easier to navigate." }
     ],
     accent: "linear-gradient(135deg,#0d0d0d 0%,#1a1510 45%,#9f7a36 120%)",
+    media: "https://raw.githubusercontent.com/whitesr09/Portfolio/main/public/projects/nur.webp",
+    mediaAlt: "NUR dark gold interface showing Daily Light, prayer, Amanah and Muhasaba screens."
+  },
+  {
+    slug: "nur-m3",
+    title: "NUR-M3",
+    kicker: "Faith × Material 3 × customization",
+    category: "Product Design / Android",
+    year: "2026",
+    role: "Product direction, Material 3 system, vibe coding",
+    description: "A brighter, highly customizable Material 3 evolution of NUR, reworking the daily journey around prayer, Amanah, focus, rhythm and history.",
+    statement: "Rebuilding a spiritual product without losing its identity.",
+    tools: ["Material 3", "Android", "UI systems", "AI-assisted development"],
+    chapters: [
+      { title: "The evolution", body: "NUR-M3 reinterprets the original product through a lighter Material 3 system while preserving the core spiritual and self-accountability experience." },
+      { title: "The idea", body: "Make the daily journey clearer, more modular and more customizable, with quick actions and meaningful progress visible at a glance." },
+      { title: "Design direction", body: "Soft surfaces, expressive typography, teal accents, compact navigation and configurable progress treatments create a distinctly modern Android experience." },
+      { title: "What I learned", body: "A redesign works best when it preserves the product's emotional identity while being willing to completely rethink its interaction system." }
+    ],
+    accent: "linear-gradient(135deg,#d9fbfa 0%,#bfece7 52%,#40d9b0 135%)",
+    media: "https://raw.githubusercontent.com/whitesr09/Portfolio/main/public/projects/nur-m3.webp",
+    mediaAlt: "NUR-M3 interface showing the Daily Journey dashboard and prayer tracking.",
     href: "https://github.com/whitesr09/NUR-M3"
   },
   {
@@ -49,7 +73,9 @@ export const projects: Project[] = [
       { title: "Design direction", body: "Professional typography, compact components, adaptable appearance modes and motion that supports navigation instead of decorating it." },
       { title: "What I learned", body: "Performance and density matter as much as visual polish on mobile. Small spacing decisions can change how fast an app feels." }
     ],
-    accent: "linear-gradient(135deg,#071014 0%,#12222b 46%,#7bb8c9 130%)",
+    accent: "linear-gradient(135deg,#f8f7fb 0%,#eee8fa 55%,#a96cea 140%)",
+    media: "https://raw.githubusercontent.com/whitesr09/Portfolio/main/public/projects/studyflow.webp",
+    mediaAlt: "StudyFlow interface showing Today, Library, Plan, learning cycle and workspace screens.",
     href: "https://github.com/whitesr09/StudyFlow"
   },
   {
@@ -68,7 +94,9 @@ export const projects: Project[] = [
       { title: "Design direction", body: "Compact controls, clear expansion patterns and restrained glass surfaces keep a large option set usable on a phone." },
       { title: "What I learned", body: "Prompt engineering becomes more powerful when treated as interface design: structure, defaults and sequencing matter." }
     ],
-    accent: "linear-gradient(135deg,#100b14 0%,#211a2b 48%,#a18ab8 130%)",
+    accent: "linear-gradient(135deg,#07070b 0%,#111323 48%,#6047ff 115%,#00d7c7 145%)",
+    media: "https://raw.githubusercontent.com/whitesr09/Portfolio/main/public/projects/character-build.webp",
+    mediaAlt: "Character Build AI Character Prompt Studio interface with model presets and prompt controls.",
     href: "https://github.com/whitesr09/Charecter-Build"
   },
   {
