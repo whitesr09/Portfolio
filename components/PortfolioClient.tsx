@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import Lenis from "lenis";
 import {
@@ -21,6 +19,9 @@ import {
   Zap
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import ExperienceStudio from "@/components/ExperienceStudio";
+import IntersectionLab from "@/components/IntersectionLab";
+import ProjectExplorer from "@/components/ProjectExplorer";
 import { projects } from "@/data/projects";
 import { site } from "@/data/site";
 
@@ -92,6 +93,7 @@ const toolkit = [
 const journeySections = [
   { id: "home", number: "00", label: "INTRO" },
   { id: "expertise", number: "02", label: "EXPERTISE" },
+  { id: "intersection", number: "02B", label: "INTERSECTION" },
   { id: "work", number: "03", label: "WORK" },
   { id: "archive", number: "04", label: "ARCHIVE" },
   { id: "lab", number: "05", label: "AI LAB" },
@@ -264,7 +266,6 @@ export default function PortfolioClient() {
   const [experimental, setExperimental] = useState(false);
   const [logoClicks, setLogoClicks] = useState(0);
   const [activeSection, setActiveSection] = useState("home");
-  const [workView, setWorkView] = useState<"cinematic" | "index">("cinematic");
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const cursorLabelRef = useRef<HTMLSpanElement | null>(null);
   const { scrollYProgress } = useScroll();
@@ -447,7 +448,10 @@ export default function PortfolioClient() {
   };
 
   return (
-    <main className={experimental ? "site experimental-mode" : "site"}>
+    <main
+      className={experimental ? "site experimental-mode" : "site"}
+      data-active-section={activeSection}
+    >
       <AnimatePresence>
         {loading && (
           <motion.div
@@ -523,6 +527,8 @@ export default function PortfolioClient() {
         )}
       </AnimatePresence>
 
+      <ExperienceStudio activeSection={activeSection} onNavigate={goTo} />
+
       <nav className="journey-rail" aria-label="Page sections">
         <span className="journey-rail-line" aria-hidden="true" />
         {journeySections.map((item) => (
@@ -593,6 +599,13 @@ export default function PortfolioClient() {
               <ArrowDownRight />
             </button>
           </div>
+
+          <div className="hero-signal-strip" aria-label="Portfolio overview">
+            <div><span>PROJECTS</span><strong>{String(projects.length).padStart(2, "0")}</strong></div>
+            <div><span>DISCIPLINES</span><strong>05</strong></div>
+            <div><span>BASE</span><strong>{site.location.toUpperCase()}</strong></div>
+            <div><span>MODE</span><strong>DESIGN × AI × CODE × SCIENCE</strong></div>
+          </div>
         </motion.div>
 
         <div className="hero-index" aria-hidden="true">
@@ -632,75 +645,9 @@ export default function PortfolioClient() {
         </div>
       </section>
 
-      <section className="work section-pad" id="work">
-        <div className="section-head work-head">
-          <div>
-            <Reveal><p className="section-label">03 / SELECTED WORK</p></Reveal>
-            <Reveal delay={0.08}><h2>SELECTED<br />WORK <span>/ 2026</span></h2></Reveal>
-          </div>
-          <Reveal><p className="work-intro">Products, systems and visual experiments built through design thinking, AI-assisted development and continuous iteration.</p></Reveal>
-          <Reveal className="work-view-wrap" delay={0.1}>
-            <div className="work-view-switch" role="group" aria-label="Project display style">
-              <span>VIEW</span>
-              <button
-                type="button"
-                className={workView === "cinematic" ? "is-active" : ""}
-                aria-pressed={workView === "cinematic"}
-                onClick={() => setWorkView("cinematic")}
-              >
-                CINEMATIC
-              </button>
-              <button
-                type="button"
-                className={workView === "index" ? "is-active" : ""}
-                aria-pressed={workView === "index"}
-                onClick={() => setWorkView("index")}
-              >
-                INDEX
-              </button>
-            </div>
-          </Reveal>
-        </div>
+      <IntersectionLab />
 
-        <div className={`project-stack ${workView === "index" ? "is-index" : ""}`}>
-          {projects.map((project, index) => (
-            <Reveal key={project.slug}>
-              <Link href={`/work/${project.slug}`} className="project-row" data-cursor="VIEW">
-                <div className="project-meta-top">
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <span>{project.category}</span>
-                  <span>{project.year}</span>
-                </div>
-                <div className={`project-visual ${project.media ? "has-project-media" : ""}`} style={{ background: project.accent }}>
-                  {project.media && (
-                    <div className="project-media-stage">
-                      <div className="project-media-shell">
-                        <Image
-                          src={project.media}
-                          alt={project.mediaAlt || `${project.title} interface preview`}
-                          fill
-                          sizes="(max-width: 680px) 88vw, 55vw"
-                        />
-                      </div>
-                    </div>
-                  )}
-                  <div className="project-grid" aria-hidden="true" />
-                  <div className="project-sigil" aria-hidden="true">{project.title.slice(0, 1)}</div>
-                  <div className="project-title-wrap">
-                    <p>{project.kicker}</p>
-                    <h3>{project.title}</h3>
-                  </div>
-                  <ArrowUpRight className="project-arrow" />
-                </div>
-                <div className="project-bottom">
-                  <p>{project.description}</p>
-                  <span>{project.tools.slice(0, 2).join(" / ")}</span>
-                </div>
-              </Link>
-            </Reveal>
-          ))}
-        </div>
-      </section>
+      <ProjectExplorer />
 
       <section className="archive section-pad" id="archive">
         <div className="section-head">
