@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import Lenis from "lenis";
 import {
   ArrowDownRight,
   ArrowRight,
+  ArrowUp,
   ArrowUpRight,
   Atom,
   Code2,
@@ -87,6 +89,16 @@ const toolkit = [
   ["SCIENCE", ["Pharmaceutical Sciences", "Drug Knowledge", "Scientific Research", "Analytical Thinking"]]
 ];
 
+const journeySections = [
+  { id: "home", number: "00", label: "INTRO" },
+  { id: "expertise", number: "02", label: "EXPERTISE" },
+  { id: "work", number: "03", label: "WORK" },
+  { id: "archive", number: "04", label: "ARCHIVE" },
+  { id: "lab", number: "05", label: "AI LAB" },
+  { id: "about", number: "09", label: "ABOUT" },
+  { id: "contact", number: "13", label: "CONTACT" }
+] as const;
+
 function ParticleField({ reduced }: { reduced: boolean | null }) {
   const ref = useRef<HTMLCanvasElement | null>(null);
 
@@ -96,12 +108,14 @@ function ParticleField({ reduced }: { reduced: boolean | null }) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
     let frame = 0;
     let raf = 0;
     let width = 0;
     let height = 0;
+    let inView = true;
     const pointer = { x: 0.5, y: 0.5 };
-    const particles = Array.from({ length: 72 }, (_, i) => ({
+    const particles = Array.from({ length: coarse ? 34 : 64 }, (_, i) => ({
       seed: i * 0.6180339887,
       speed: 0.00016 + (i % 7) * 0.000018,
       radius: 0.7 + (i % 4) * 0.45
@@ -109,7 +123,7 @@ function ParticleField({ reduced }: { reduced: boolean | null }) {
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      const dpr = Math.min(window.devicePixelRatio || 1, coarse ? 1.2 : 1.6);
       width = rect.width;
       height = rect.height;
       canvas.width = Math.max(1, Math.floor(width * dpr));
@@ -123,6 +137,9 @@ function ParticleField({ reduced }: { reduced: boolean | null }) {
     };
 
     const draw = () => {
+      raf = 0;
+      if (document.hidden || !inView) return;
+
       frame += 1;
       ctx.clearRect(0, 0, width, height);
       const cx = width * (0.69 + (pointer.x - 0.5) * 0.035);
@@ -166,15 +183,40 @@ function ParticleField({ reduced }: { reduced: boolean | null }) {
       raf = requestAnimationFrame(draw);
     };
 
+    const start = () => {
+      if (!raf && !document.hidden && inView) raf = requestAnimationFrame(draw);
+    };
+    const stop = () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+    };
+    const onVisibility = () => {
+      if (document.hidden) stop();
+      else start();
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        inView = Boolean(entry?.isIntersecting);
+        if (inView) start();
+        else stop();
+      },
+      { threshold: 0.01 }
+    );
+
     resize();
-    window.addEventListener("resize", resize);
-    window.addEventListener("pointermove", move, { passive: true });
-    raf = requestAnimationFrame(draw);
+    observer.observe(canvas);
+    window.addEventListener("resize", resize, { passive: true });
+    if (!coarse) window.addEventListener("pointermove", move, { passive: true });
+    document.addEventListener("visibilitychange", onVisibility);
+    start();
 
     return () => {
-      cancelAnimationFrame(raf);
+      stop();
+      observer.disconnect();
       window.removeEventListener("resize", resize);
-      window.removeEventListener("pointermove", move);
+      if (!coarse) window.removeEventListener("pointermove", move);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [reduced]);
 
@@ -221,6 +263,8 @@ export default function PortfolioClient() {
   const [poster, setPoster] = useState<(typeof posters)[number] | null>(null);
   const [experimental, setExperimental] = useState(false);
   const [logoClicks, setLogoClicks] = useState(0);
+  const [activeSection, setActiveSection] = useState("home");
+  const [workView, setWorkView] = useState<"cinematic" | "index">("cinematic");
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const cursorLabelRef = useRef<HTMLSpanElement | null>(null);
   const { scrollYProgress } = useScroll();
@@ -229,25 +273,47 @@ export default function PortfolioClient() {
   const progressScale = scrollYProgress;
 
   useEffect(() => {
-    const seen = sessionStorage.getItem("nshd-intro");
+    if (reduced) {
+      setLoading(false);
+      return;
+    }
+
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem("nshd-intro") === "1";
+    } catch {
+      seen = false;
+    }
     if (seen) {
       setLoading(false);
       return;
     }
+
     const started = performance.now();
     let raf = 0;
+    let finishTimer = 0;
     const tick = (now: number) => {
-      const p = Math.min(100, Math.round(((now - started) / 1450) * 100));
+      const p = Math.min(100, Math.round(((now - started) / 1150) * 100));
       setLoadValue(p);
-      if (p < 100) raf = requestAnimationFrame(tick);
-      else {
-        sessionStorage.setItem("nshd-intro", "1");
-        window.setTimeout(() => setLoading(false), 280);
+      if (p < 100) {
+        raf = requestAnimationFrame(tick);
+        return;
       }
+
+      try {
+        sessionStorage.setItem("nshd-intro", "1");
+      } catch {
+        // Storage may be unavailable in restricted browsing contexts.
+      }
+      finishTimer = window.setTimeout(() => setLoading(false), 180);
     };
+
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
+    return () => {
+      cancelAnimationFrame(raf);
+      if (finishTimer) window.clearTimeout(finishTimer);
+    };
+  }, [reduced]);
 
   useEffect(() => {
     if (reduced) return;
@@ -269,40 +335,87 @@ export default function PortfolioClient() {
   }, [reduced]);
 
   useEffect(() => {
-    const timer = window.setInterval(() => setRole((value) => (value + 1) % roles.length), 2250);
+    if (reduced) return;
+    const timer = window.setInterval(() => {
+      if (!document.hidden) setRole((value) => (value + 1) % roles.length);
+    }, 2250);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [reduced]);
 
   useEffect(() => {
     const cursor = cursorRef.current;
     const label = cursorLabelRef.current;
-    if (!cursor || !label || window.matchMedia("(pointer: coarse)").matches) return;
+    if (!cursor || !label || window.matchMedia("(pointer: coarse)").matches || reduced) return;
 
+    let x = -100;
+    let y = -100;
+    let raf = 0;
+
+    const render = () => {
+      raf = 0;
+      cursor.style.transform = `translate3d(${x}px,${y}px,0)`;
+    };
     const move = (event: PointerEvent) => {
-      cursor.animate(
-        { transform: `translate3d(${event.clientX}px,${event.clientY}px,0)` },
-        { duration: 240, fill: "forwards", easing: "cubic-bezier(.16,1,.3,1)" }
-      );
+      x = event.clientX;
+      y = event.clientY;
+      if (!raf) raf = requestAnimationFrame(render);
+
       const target = event.target as HTMLElement | null;
       const interactive = target?.closest("[data-cursor]") as HTMLElement | null;
-      const text = interactive?.dataset.cursor || "";
-      label.textContent = text;
-      cursor.classList.toggle("cursor-active", Boolean(text));
+      const cursorText = interactive?.dataset.cursor || "";
+      label.textContent = cursorText;
+      cursor.classList.toggle("cursor-active", Boolean(cursorText));
     };
+
     window.addEventListener("pointermove", move, { passive: true });
-    return () => window.removeEventListener("pointermove", move);
-  }, []);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("pointermove", move);
+    };
+  }, [reduced]);
 
   useEffect(() => {
-    if (!menu && !poster) {
-      document.body.style.overflow = "";
-      return;
-    }
+    if (!menu && !poster) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setMenu(false);
+      setPoster(null);
+    };
+
     document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
+
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
     };
   }, [menu, poster]);
+
+  useEffect(() => {
+    if (!("IntersectionObserver" in window)) return;
+
+    const nodes = journeySections
+      .map(({ id }) => document.getElementById(id))
+      .filter((node): node is HTMLElement => Boolean(node));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible?.target.id) setActiveSection(visible.target.id);
+      },
+      {
+        rootMargin: "-28% 0px -58% 0px",
+        threshold: [0, 0.15, 0.35, 0.6]
+      }
+    );
+
+    nodes.forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, []);
 
   const statusItems = useMemo(
     () => [
@@ -313,6 +426,11 @@ export default function PortfolioClient() {
     ],
     []
   );
+
+  const activeJourneyIndex = Math.max(0, journeySections.findIndex(({ id }) => id === activeSection));
+  const currentJourney = journeySections[activeJourneyIndex];
+  const nextJourney = journeySections[(activeJourneyIndex + 1) % journeySections.length];
+  const journeyAtEnd = activeJourneyIndex === journeySections.length - 1;
 
   const handleLogo = () => {
     const next = logoClicks + 1;
@@ -369,7 +487,13 @@ export default function PortfolioClient() {
             <button onClick={() => goTo("#contact")}>CONTACT</button>
           </div>
           <div className="nav-status"><i /> {site.location}</div>
-          <button className="menu-button" onClick={() => setMenu(true)} aria-label="Open navigation">
+          <button
+            className="menu-button"
+            onClick={() => setMenu(true)}
+            aria-label="Open navigation"
+            aria-expanded={menu}
+            aria-controls="mobile-navigation"
+          >
             <Menu size={18} />
           </button>
         </nav>
@@ -378,13 +502,17 @@ export default function PortfolioClient() {
       <AnimatePresence>
         {menu && (
           <motion.div
+            id="mobile-navigation"
             className="mobile-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Site navigation"
             initial={{ opacity: 0, clipPath: "inset(0 0 100% 0)" }}
             animate={{ opacity: 1, clipPath: "inset(0 0 0% 0)" }}
             exit={{ opacity: 0, clipPath: "inset(0 0 100% 0)" }}
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="mobile-menu-head"><Wordmark /><button onClick={() => setMenu(false)} aria-label="Close navigation"><X /></button></div>
+            <div className="mobile-menu-head"><Wordmark /><button autoFocus onClick={() => setMenu(false)} aria-label="Close navigation"><X /></button></div>
             <div className="mobile-menu-links">
               {[["01", "#work", "WORK"], ["02", "#about", "ABOUT"], ["03", "#expertise", "EXPERTISE"], ["04", "#lab", "LAB"], ["05", "#contact", "CONTACT"]].map(([n, id, label]) => (
                 <button key={id} onClick={() => goTo(id)}><small>{n}</small>{label}<ArrowUpRight /></button>
@@ -394,6 +522,37 @@ export default function PortfolioClient() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <nav className="journey-rail" aria-label="Page sections">
+        <span className="journey-rail-line" aria-hidden="true" />
+        {journeySections.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={activeSection === item.id ? "is-active" : ""}
+            onClick={() => goTo(`#${item.id}`)}
+            aria-label={`Go to ${item.label}`}
+            aria-current={activeSection === item.id ? "location" : undefined}
+          >
+            <i aria-hidden="true" />
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      <div className="mobile-journey" aria-label="Page progress">
+        <div>
+          <span>{currentJourney.number} / {String(journeySections.length).padStart(2, "0")}</span>
+          <strong>{currentJourney.label}</strong>
+        </div>
+        <button
+          type="button"
+          onClick={() => goTo(`#${nextJourney.id}`)}
+          aria-label={journeyAtEnd ? "Back to top" : `Go to ${nextJourney.label}`}
+        >
+          {journeyAtEnd ? <ArrowUp /> : <ArrowDownRight />}
+        </button>
+      </div>
 
       <section className="hero" id="home">
         <ParticleField reduced={reduced} />
@@ -459,7 +618,7 @@ export default function PortfolioClient() {
         <div className="discipline-list">
           {disciplines.map((item, index) => (
             <Reveal key={item.title} delay={index * 0.045}>
-              <article className={`discipline-row ${item.className}`} data-cursor="OPEN">
+              <article className={`discipline-row ${item.className}`}>
                 <span className="discipline-no">{item.number}</span>
                 <div>
                   <h3>{item.title}</h3>
@@ -480,9 +639,30 @@ export default function PortfolioClient() {
             <Reveal delay={0.08}><h2>SELECTED<br />WORK <span>/ 2026</span></h2></Reveal>
           </div>
           <Reveal><p className="work-intro">Products, systems and visual experiments built through design thinking, AI-assisted development and continuous iteration.</p></Reveal>
+          <Reveal className="work-view-wrap" delay={0.1}>
+            <div className="work-view-switch" role="group" aria-label="Project display style">
+              <span>VIEW</span>
+              <button
+                type="button"
+                className={workView === "cinematic" ? "is-active" : ""}
+                aria-pressed={workView === "cinematic"}
+                onClick={() => setWorkView("cinematic")}
+              >
+                CINEMATIC
+              </button>
+              <button
+                type="button"
+                className={workView === "index" ? "is-active" : ""}
+                aria-pressed={workView === "index"}
+                onClick={() => setWorkView("index")}
+              >
+                INDEX
+              </button>
+            </div>
+          </Reveal>
         </div>
 
-        <div className="project-stack">
+        <div className={`project-stack ${workView === "index" ? "is-index" : ""}`}>
           {projects.map((project, index) => (
             <Reveal key={project.slug}>
               <Link href={`/work/${project.slug}`} className="project-row" data-cursor="VIEW">
@@ -494,7 +674,14 @@ export default function PortfolioClient() {
                 <div className={`project-visual ${project.media ? "has-project-media" : ""}`} style={{ background: project.accent }}>
                   {project.media && (
                     <div className="project-media-stage">
-                      <img src={project.media} alt={project.mediaAlt || `${project.title} interface preview`} loading="lazy" />
+                      <div className="project-media-shell">
+                        <Image
+                          src={project.media}
+                          alt={project.mediaAlt || `${project.title} interface preview`}
+                          fill
+                          sizes="(max-width: 680px) 88vw, 55vw"
+                        />
+                      </div>
                     </div>
                   )}
                   <div className="project-grid" aria-hidden="true" />
@@ -535,8 +722,19 @@ export default function PortfolioClient() {
 
       <AnimatePresence>
         {poster && (
-          <motion.div className="lightbox" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <button className="lightbox-close" onClick={() => setPoster(null)} aria-label="Close poster"><X /></button>
+          <motion.div
+            className="lightbox"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Poster preview: ${poster.title}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setPoster(null);
+            }}
+          >
+            <button autoFocus className="lightbox-close" onClick={() => setPoster(null)} aria-label="Close poster"><X /></button>
             <motion.div
               className={`lightbox-poster poster ${poster.className}`}
               initial={reduced ? false : { scale: 0.9, y: 40, filter: "blur(12px)" }}
@@ -565,7 +763,7 @@ export default function PortfolioClient() {
         <div className="lab-grid">
           {labs.map(([title, body, meta], index) => (
             <Reveal key={title} delay={(index % 3) * 0.05}>
-              <article className="lab-tile" data-cursor="EXPLORE">
+              <article className="lab-tile">
                 <div className="lab-number">{String(index + 1).padStart(2, "0")}</div>
                 <Sparkles size={20} />
                 <h3>{title}</h3>
