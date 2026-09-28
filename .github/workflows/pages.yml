@@ -31,11 +31,6 @@ jobs:
         with:
           node-version: 22
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-        with:
-          static_site_generator: next
-
       - name: Install dependencies
         run: npm install
 
@@ -45,6 +40,11 @@ jobs:
           GITHUB_PAGES: "true"
           NEXT_PUBLIC_BASE_PATH: "/Portfolio"
           NEXT_PUBLIC_SITE_URL: "https://whitesr09.github.io/Portfolio"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          static_site_generator: next
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
