@@ -444,7 +444,14 @@ export default function PortfolioClient() {
 
   const goTo = (id: string) => {
     setMenu(false);
-    document.querySelector(id)?.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+    const target = document.querySelector(id);
+    if (!target) return;
+    try {
+      if (window.location.hash !== id) window.history.pushState(null, "", id);
+    } catch {
+      // Navigation still works if history is restricted.
+    }
+    target.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
   };
 
   return (
