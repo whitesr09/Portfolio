@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
@@ -34,10 +35,12 @@ export default async function CaseStudyPage({ params }: Props) {
   if (!project) notFound();
 
   const currentIndex = projects.findIndex((item) => item.slug === project.slug);
+  const previousProject = projects[(currentIndex - 1 + projects.length) % projects.length];
   const nextProject = projects[(currentIndex + 1) % projects.length];
 
   return (
     <main className="case-page">
+      <div className="case-scroll-progress" aria-hidden="true" />
       <nav className="case-nav">
         <Link href="/#work" className="case-back">
           <ArrowLeft /> BACK TO WORK
@@ -71,11 +74,15 @@ export default async function CaseStudyPage({ params }: Props) {
       {project.media && (
         <section className="case-media-showcase">
           <div className="case-media-frame" style={{ background: project.accent }}>
-            <img
-              src={project.media}
-              alt={project.mediaAlt || `${project.title} interface preview`}
-              loading="eager"
-            />
+            <div className="case-media-image">
+              <Image
+                src={project.media}
+                alt={project.mediaAlt || `${project.title} interface preview`}
+                fill
+                priority
+                sizes="(max-width: 680px) 92vw, 82vw"
+              />
+            </div>
           </div>
           <div className="case-media-caption">
             <span>REAL PRODUCT INTERFACE</span>
@@ -88,11 +95,19 @@ export default async function CaseStudyPage({ params }: Props) {
         <aside className="case-sticky">
           <span className="section-label">CASE STUDY / {String(currentIndex + 1).padStart(2, "0")}</span>
           <p>“{project.statement}”</p>
+          <nav className="case-chapter-nav" aria-label="Case study chapters">
+            {project.chapters.map((chapter, index) => (
+              <a key={chapter.title} href={`#chapter-${index + 1}`}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                {chapter.title}
+              </a>
+            ))}
+          </nav>
         </aside>
 
         <div className="case-chapters">
           {project.chapters.map((chapter, index) => (
-            <article key={chapter.title}>
+            <article id={`chapter-${index + 1}`} key={chapter.title}>
               <span>{String(index + 1).padStart(2, "0")}</span>
               <h2>{chapter.title.toUpperCase()}</h2>
               <p>{chapter.body}</p>
@@ -112,11 +127,18 @@ export default async function CaseStudyPage({ params }: Props) {
         </div>
       </section>
 
-      <Link className="case-next" href={`/work/${nextProject.slug}`}>
-        <span>NEXT PROJECT</span>
-        <h3>{nextProject.title}</h3>
-        <p>{nextProject.category} ↗</p>
-      </Link>
+      <nav className="case-pagination" aria-label="Project navigation">
+        <Link className="case-adjacent case-previous" href={`/work/${previousProject.slug}`}>
+          <span>PREVIOUS PROJECT</span>
+          <h3>{previousProject.title}</h3>
+          <p>← {previousProject.category}</p>
+        </Link>
+        <Link className="case-adjacent case-next" href={`/work/${nextProject.slug}`}>
+          <span>NEXT PROJECT</span>
+          <h3>{nextProject.title}</h3>
+          <p>{nextProject.category} ↗</p>
+        </Link>
+      </nav>
     </main>
   );
 }
