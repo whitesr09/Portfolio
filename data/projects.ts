@@ -33,7 +33,7 @@ export const projects: Project[] = [
       { title: "What I learned", body: "The strongest interface decisions came from deciding what not to show. Restraint made the product feel more personal and easier to navigate." }
     ],
     accent: "linear-gradient(135deg,#0d0d0d 0%,#1a1510 45%,#9f7a36 120%)",
-    media: "https://raw.githubusercontent.com/whitesr09/Portfolio/main/public/projects/nur.webp",
+    media: "/projects/nur.webp",
     mediaAlt: "NUR dark gold interface showing Daily Light, prayer, Amanah and Muhasaba screens."
   },
   {
@@ -53,7 +53,7 @@ export const projects: Project[] = [
       { title: "What I learned", body: "A redesign works best when it preserves the product's emotional identity while being willing to completely rethink its interaction system." }
     ],
     accent: "linear-gradient(135deg,#d9fbfa 0%,#bfece7 52%,#40d9b0 135%)",
-    media: "https://raw.githubusercontent.com/whitesr09/Portfolio/main/public/projects/nur-m3.webp",
+    media: "/projects/nur-m3.webp",
     mediaAlt: "NUR-M3 interface showing the Daily Journey dashboard and prayer tracking.",
     href: "https://github.com/whitesr09/NUR-M3"
   },
@@ -74,7 +74,7 @@ export const projects: Project[] = [
       { title: "What I learned", body: "Performance and density matter as much as visual polish on mobile. Small spacing decisions can change how fast an app feels." }
     ],
     accent: "linear-gradient(135deg,#f8f7fb 0%,#eee8fa 55%,#a96cea 140%)",
-    media: "https://raw.githubusercontent.com/whitesr09/Portfolio/main/public/projects/studyflow.webp",
+    media: "/projects/studyflow.webp",
     mediaAlt: "StudyFlow interface showing Today, Library, Plan, learning cycle and workspace screens.",
     href: "https://github.com/whitesr09/StudyFlow"
   },
@@ -95,7 +95,7 @@ export const projects: Project[] = [
       { title: "What I learned", body: "Prompt engineering becomes more powerful when treated as interface design: structure, defaults and sequencing matter." }
     ],
     accent: "linear-gradient(135deg,#07070b 0%,#111323 48%,#6047ff 115%,#00d7c7 145%)",
-    media: "https://raw.githubusercontent.com/whitesr09/Portfolio/main/public/projects/character-build.webp",
+    media: "/projects/character-build.webp",
     mediaAlt: "Character Build AI Character Prompt Studio interface with model presets and prompt controls.",
     href: "https://github.com/whitesr09/Charecter-Build"
   },
