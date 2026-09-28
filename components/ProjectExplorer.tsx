@@ -25,6 +25,7 @@ export default function ProjectExplorer(){
   const [filter,setFilter]=useState<Filter>("ALL");
   const [selected,setSelected]=useState<Project|null>(null);
   const closeRef=useRef<HTMLButtonElement|null>(null);
+  const sheetRef=useRef<HTMLElement|null>(null);
   const lastInspectRef=useRef<HTMLButtonElement|null>(null);
 
   useEffect(()=>{
@@ -38,7 +39,15 @@ export default function ProjectExplorer(){
   useEffect(()=>{
     if(!selected) return;
     const previousOverflow=document.body.style.overflow;
-    const onKeyDown=(event:KeyboardEvent)=>{if(event.key==="Escape") setSelected(null);};
+    const onKeyDown=(event:KeyboardEvent)=>{
+      if(event.key==="Escape"){setSelected(null);return;}
+      if(event.key!=="Tab"||!sheetRef.current)return;
+      const focusable=Array.from(sheetRef.current.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])')).filter((node)=>node.offsetParent!==null);
+      if(!focusable.length)return;
+      const first=focusable[0], last=focusable[focusable.length-1];
+      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+    };
     document.body.style.overflow="hidden";
     document.addEventListener("keydown",onKeyDown);
     window.setTimeout(()=>closeRef.current?.focus(),0);
@@ -87,7 +96,7 @@ export default function ProjectExplorer(){
       <AnimatePresence>
         {selected&&(
           <motion.div className="project-sheet-backdrop" role="presentation" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onMouseDown={(event)=>{if(event.target===event.currentTarget)setSelected(null);}}>
-            <motion.aside className="project-sheet" role="dialog" aria-modal="true" aria-label={`Quick view: ${selected.title}`} initial={reduced?false:{x:"100%"}} animate={{x:0}} exit={reduced?undefined:{x:"100%"}} transition={{duration:.55,ease:[.16,1,.3,1]}}>
+            <motion.aside ref={sheetRef} className="project-sheet" role="dialog" aria-modal="true" aria-label={`Quick view: ${selected.title}`} initial={reduced?false:{x:"100%"}} animate={{x:0}} exit={reduced?undefined:{x:"100%"}} transition={{duration:.55,ease:[.16,1,.3,1]}}>
               <div className="project-sheet-head"><div><span>{groupFor(selected)} / {selected.year}</span><strong>PROJECT INSPECT</strong></div><button ref={closeRef} type="button" onClick={()=>setSelected(null)} aria-label="Close project quick view"><X/></button></div>
               {selected.media&&<div className="project-sheet-media" style={{background:selected.accent}}><Image src={selected.media} alt={selected.mediaAlt||`${selected.title} interface preview`} fill sizes="(max-width: 680px) 92vw, 44vw"/></div>}
               <div className="project-sheet-copy">
