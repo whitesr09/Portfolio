@@ -2845,6 +2845,43 @@ html[data-technical="on"] .technical-grid-overlay {
   line-height:1.55;
 }
 
+.studio-share {
+  width:100%;
+  min-height:54px;
+  margin-top:1rem;
+  padding:.8rem 1rem;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:.7rem;
+  border:1px solid rgba(212,185,120,.2);
+  border-radius:10px;
+  background:rgba(212,185,120,.045);
+  color:#bcae8e;
+  font-size:.53rem;
+  letter-spacing:.1em;
+  text-align:left;
+  transition:background .25s,border-color .25s,transform .2s;
+}
+
+.studio-share svg {
+  width:15px;
+}
+
+.studio-share svg:last-child {
+  justify-self:end;
+}
+
+.studio-share:hover,
+.studio-share:focus-visible {
+  background:rgba(212,185,120,.09);
+  border-color:rgba(212,185,120,.34);
+}
+
+.studio-share:active {
+  transform:scale(.992);
+}
+
 .studio-socials {
   display:grid;
   grid-template-columns:repeat(4,1fr);
