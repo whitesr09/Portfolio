@@ -25,6 +25,7 @@ export default function ProjectExplorer(){
   const [filter,setFilter]=useState<Filter>("ALL");
   const [selected,setSelected]=useState<Project|null>(null);
   const closeRef=useRef<HTMLButtonElement|null>(null);
+  const lastInspectRef=useRef<HTMLButtonElement|null>(null);
 
   useEffect(()=>{
     try{
@@ -41,7 +42,7 @@ export default function ProjectExplorer(){
     document.body.style.overflow="hidden";
     document.addEventListener("keydown",onKeyDown);
     window.setTimeout(()=>closeRef.current?.focus(),0);
-    return ()=>{document.body.style.overflow=previousOverflow;document.removeEventListener("keydown",onKeyDown);};
+    return ()=>{document.body.style.overflow=previousOverflow;document.removeEventListener("keydown",onKeyDown);window.setTimeout(()=>lastInspectRef.current?.focus(),0);};
   },[selected]);
 
   const visible=useMemo(()=>projects.filter((project)=>filter==="ALL"||groupFor(project)===filter),[filter]);
@@ -77,7 +78,7 @@ export default function ProjectExplorer(){
                 </div>
                 <div className="project-bottom"><p>{project.description}</p><span>{project.tools.slice(0,3).join(" / ")}</span></div>
               </Link>
-              <button type="button" className="project-inspect" onClick={()=>setSelected(project)} aria-label={`Quick inspect ${project.title}`}><Eye/><span>QUICK INSPECT</span></button>
+              <button type="button" className="project-inspect" onClick={(event)=>{lastInspectRef.current=event.currentTarget;setSelected(project);}} aria-label={`Quick inspect ${project.title}`}><Eye/><span>QUICK INSPECT</span></button>
             </motion.article>
           ))}
         </AnimatePresence>
