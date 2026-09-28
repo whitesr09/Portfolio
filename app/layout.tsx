@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nshd-portfolio.vercel.app";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://nshd-portfolio.vercel.app"),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "N S H D — Creative Intelligence",
     template: "%s — N S H D"
